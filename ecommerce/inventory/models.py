@@ -1,9 +1,4 @@
 """Models for inventory app using MPTT"""
-from distutils.command.upload import upload
-from email.policy import default
-from enum import unique
-from tabnanny import verbose
-
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey, TreeManyToManyField
@@ -154,6 +149,54 @@ class Brand(models.Model):
     )
 
 
+class ProductAttribute(models.Model):
+    """
+    Product attribute table
+    """
+
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        null=False,
+        blank=False,
+        verbose_name=_("product attribute name"),
+        help_text=_("format: required, unique, max-255"),
+    )
+    description = models.TextField(
+        unique=False,
+        null=False,
+        blank=False,
+        verbose_name=_("product attribute description"),
+        help_text=_("format: required"),
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class ProductAttributeValue(models.Model):
+    """
+    Product attribute value table
+    """
+
+    product_attribute = models.ForeignKey(
+        ProductAttribute,
+        related_name="product_attribute",
+        on_delete=models.PROTECT,
+    )
+    attribute_value = models.CharField(
+        max_length=255,
+        unique=False,
+        null=False,
+        blank=False,
+        verbose_name=_("attribute value"),
+        help_text=_("format: required, max-255"),
+    )
+
+    def __str__(self):
+        return f"{self.product_attribute.name} : {self.attribute_value}"
+
+
 class ProductInventory(models.Model):
     """
     Product inventory table
@@ -183,6 +226,11 @@ class ProductInventory(models.Model):
     )
     brand = models.ForeignKey(
         Brand, related_name="brand", on_delete=models.PROTECT
+    )
+    attribute_values = models.ManyToManyField(
+        ProductAttributeValue,
+        related_name="product_attribute_values",
+        through="ProductAttributeValues",
     )
     is_active = models.BooleanField(
         default=True,
@@ -270,7 +318,7 @@ class Media(models.Model):
         verbose_name=_("product image"),
         upload_to="images/",
         default="images/default.png",
-        help_text=_("format: required, default-defaul.png"),
+        help_text=_("format: required, default-default.png"),
     )
     alt_text = models.CharField(
         max_length=255,
@@ -288,15 +336,66 @@ class Media(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True,
         editable=False,
-        verbose_name=_("date sub-product created"),
+        verbose_name=_("product visibility"),
         help_text=_("format: Y-m-d H:M:S"),
     )
     updated_at = models.DateTimeField(
         auto_now=True,
-        verbose_name=_("date sub-product updated"),
+        verbose_name=_("date sub-product created"),
         help_text=_("format: Y-m-d H:M:S"),
     )
 
     class Meta:
         verbose_name = _("product image")
         verbose_name_plural = _("product images")
+
+
+class Stock(models.Model):
+    product_inventory = models.OneToOneField(
+        ProductInventory,
+        related_name="product_inventory",
+        on_delete=models.PROTECT,
+    )
+    last_checked = models.DateTimeField(
+        unique=False,
+        null=True,
+        blank=True,
+        verbose_name=_("inventory stock check date"),
+        help_text=_("format: Y-m-d H:M:S, null-true, blank-true"),
+    )
+    units = models.IntegerField(
+        default=0,
+        unique=False,
+        null=False,
+        blank=False,
+        verbose_name=_("units/qty of stock"),
+        help_text=_("format: required, default-0"),
+    )
+    units_sold = models.IntegerField(
+        default=0,
+        unique=False,
+        null=False,
+        blank=False,
+        verbose_name=_("units sold to date"),
+        help_text=_("format: required, default-0"),
+    )
+
+
+class ProductAttributeValues(models.Model):
+    """
+    Product attribute values link table
+    """
+
+    attributevalues = models.ForeignKey(
+        "ProductAttributeValue",
+        related_name="attributevaluess",
+        on_delete=models.PROTECT,
+    )
+    productinventory = models.ForeignKey(
+        ProductInventory,
+        related_name="productattributevaluess",
+        on_delete=models.PROTECT,
+    )
+
+    class Meta:
+        unique_together = (("attributevalues", "productinventory"),)
