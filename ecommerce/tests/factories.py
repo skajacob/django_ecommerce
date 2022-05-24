@@ -1,6 +1,6 @@
 import factory
 import pytest
-from faker import Faker
+from faker import Factory, Faker
 from pytest_factoryboy import register
 
 fake = Faker()
@@ -68,8 +68,19 @@ class ProductInventoryFactory(factory.django.DjangoModelFactory):
     weight = 987
 
 
+class MediaFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Media
+
+    product_inventory = factory.SubFactory(ProductInventoryFactory)
+    image = "images/default.png"
+    alt_text = "a default image solid color"
+    is_feature = True
+
+
 register(CategoryFactory)
 register(ProductFactory)
 register(ProductTypeFactory)
 register(BrandFactory)
 register(ProductInventoryFactory)
+register(MediaFactory)
