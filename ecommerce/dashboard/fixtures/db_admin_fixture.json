@@ -1,0 +1,15 @@
+[
+{   "model":"auth.user",
+    "pk":1,
+    "fields":{
+        "username":"admin",
+        "password": "pbkdf2_sha256$320000$JI6Pfvld2SwpzPP1yDI1SX$l4E9mbvcSipFG3DD2BcCATPX50gkuPEJuO1uvq8YgLQ=",
+        "email":"jmg@hotmail.com",
+        "is_superuser": true,
+        "is_staff": true,
+        "is_active": true
+    }
+
+}
+
+]
