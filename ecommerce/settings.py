@@ -34,9 +34,11 @@ INSTALLED_APPS = [
     # Local Aplications
     "ecommerce.dashboard",
     "ecommerce.inventory",
+    "ecommerce.drf",
     # Demo Aplication
     "ecommerce.demo",
     # External Aplications
+    "rest_framework",
     "mptt",
     "django_elasticsearch_dsl",
     # Development
@@ -141,3 +143,9 @@ INTERNAL_IPS = [
 ]
 
 ELASTICSEARCH_DSL = {"default": {"hosts": "localhost:9200"}}
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination,LimitOffsetPagination",
+    "PAGE_SIZE": 10,
+}

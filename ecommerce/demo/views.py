@@ -31,7 +31,6 @@ def product_by_category(request, category):
             "product__store_price",
         )
     )
-    print(y)
     return render(request, "product_by_category.html", {"data": y})
 
 
@@ -90,7 +89,6 @@ def product_detail(request, slug):
         .distinct()
         .values("product_attribute__name")
     )
-    print(x, y, z)
     return render(
         request, "product_detail.html", {"x": x, "filter": y, "z": z}
     )
